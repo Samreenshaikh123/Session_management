@@ -1,0 +1,118 @@
+	 Write a Servlet Program to Demonstrate the Session Management.
+File Name: SessionLogin1.html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Session Mgmt using HTTP Session</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form action="LoginServlet" method="post">
+		Username:<input type="text" name="userName"/>
+		<br/><br/>
+		Password:<input type="password" name="password"/>
+		<br/><br/> 
+		<input type="submit" value="login"/> 
+	</form>  
+    </body>
+</html>
+
+
+
+
+/////////////////////////////////////////////
+File Name: LoginServlet.java
+package test;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+ 
+public class LoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    //no-argument constructor
+    public LoginServlet() {
+     }
+    protected void doPost(HttpServletRequest request, 
+    	   HttpServletResponse response)
+                   throws ServletException, IOException {
+	response.setContentType("text/html"); 
+    	PrintWriter out = response.getWriter();
+ 
+    	//get parameters from request object.
+    	String userName = request.getParameter("userName").trim();
+    	String password = request.getParameter("password").trim();
+ 
+    	//check for null and empty values.
+    	if(userName == null || userName.equals("") || 
+    			password == null || password.equals("")){
+    		out.print("Please enter both username " +
+    				"and password. <br/><br/>");
+    		RequestDispatcher requestDispatcher = 
+    			request.getRequestDispatcher("/SessionLogin1.html");
+    		requestDispatcher.include(request, response);
+    	}//Check for valid username and password.
+    	else if(userName.equals("JSS") && password.equals("123456")){
+    		HttpSession session=request.getSession();  
+                session.setAttribute("userName",userName);  
+                session.setAttribute("password",password);
+    		out.println("Logged in successfully.<br/>"); 
+    		out.println("Click on the below link to see " +
+    			"the values of Username and Password.<br/>");
+    		out.println("<a href='DisplaySessionValueServlet'>" +
+    				"Click here</a>");
+    	    out.close();
+    	}else{
+    		out.print("Wrong username or password. <br/><br/>");
+    		RequestDispatcher requestDispatcher = 
+    			request.getRequestDispatcher("/SessionLogin1.html");
+    		requestDispatcher.include(request, response);
+    	}
+    }
+}
+
+
+///////////////////////////////////////////////////////////
+File Name: DisplaySessionValueServlet.java
+package test;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+ 
+public class DisplaySessionValueServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+ 
+    //no-argument constructor
+    public DisplaySessionValueServlet() {
+     }
+ 
+    protected void doGet(HttpServletRequest request, 
+	    HttpServletResponse response)
+	             throws ServletException, IOException {
+	response.setContentType("text/html"); 
+    	PrintWriter out = response.getWriter();
+ 
+    	//get parameters from session object.
+    	HttpSession session=request.getSession(false);  
+        String id = session.getId();
+        out.println("Session Id is : " + id+"<br><br>");
+        String userName =(String)session.getAttribute("userName");  
+        String password =(String)session.getAttribute("password");  
+ 
+    	out.println("Username: " + userName + "<br/><br/>");
+    	out.println("Password: " + password);
+ 
+    	out.close();
+    }
+}
